@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/style.css">
     <script src="./js/script.js" defer></script>
 
@@ -11,10 +11,22 @@
 </head>
 <body>
 
+   <div class ="hud-container">
+    <div class = "hud-item">Score: <span id="score">0</span></div>
+    <div class = "hud-item">Timer: <span id="timer">0</span></div>
+    <div class = "hud-item">Best Score: <span id="record">0</span></div>
+   </div> 
+
     <div class="game-board">
       <div class="character"></div>
       <img src="./sprites/Spike.png" class="spike">
+    </div>
 
+    <div id="game-over-screen" style="display: none;">
+        <h2>Game Over</h2>
+        <p>Final Score: <span id="final-score">0</span></p>
+        <h3 id ="new-record" style="color: gold; display: none;">NEW RECORD!</h3>
+        <button id="restart-button" onclick="reiniciarJogo()">Restart</button>
     </div>
 
 </body>

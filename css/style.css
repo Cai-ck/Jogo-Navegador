@@ -17,7 +17,7 @@
     position: absolute;
     bottom: 0;
     width: 32px;
-    animation: spike-animation 1.5s infinite linear;
+    animation: spike-animation 1s infinite linear;
 }
 
 .character{
@@ -68,4 +68,53 @@
     to {
         right: 100%;
     }
+}
+
+.hud-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: black;
+    padding: 10px;
+    border-radius: 8px;
+    width: 80%;
+    margin: 10px auto;
+    font-family: 'Press Start 2P', cursive;
+    color: white;
+    font-weight: bold;
+
+}
+
+.hud-item {
+    font-size: 18px;
+}
+
+#game-over-screen {
+    font-family: 'Press Start 2P', cursive;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: black;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 10;
+}
+
+#restart-button {
+    font-family: 'Press Start 2P', cursive;
+    background-color: #ff4757;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+#restart-button:hover {
+    background-color: #ff6b81;
 }
