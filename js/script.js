@@ -1,112 +1,241 @@
-const character = document.querySelector('.character');
-const spike = document.querySelector('.spike');
+const canvas = document.getElementById('window-game');
+const ctx = canvas.getContext("2d");
 
 // Score do game / Timer 
 let score = 0;
 let timer = 0;
 let intervalId;
+let jogoAtivo = true;
 
-// LocalStorage para Recorde
+const characterImage = new Image();
+characterImage.src = './sprites/Walk-sheet.png';
+
+const spikeImage = new Image();
+spikeImage.src = './sprites/Spike.png';
+
+// Character
+let character = {
+    x: 50,
+    y: 200,
+    largura: 64,
+    altura: 64,
+    velocidadeY: 0,
+    gravidade: 2500,
+    jumpForce: -850,
+    inGround: false
+};
+
+// Spike
+let spike = {
+    x: 800,
+    y: 332,          
+    largura: 32,
+    altura: 32
+};
+
+// LocalStorage 
 let highScore = localStorage.getItem("gameHighScore") ? parseInt(localStorage.getItem("gameHighScore")) : 0;
-
 if(document.getElementById("record")){
     document.getElementById("record").innerText = highScore;
 }
 
-const jump = () => {
-    character.classList.add('jump');
+// frame e sprite 
+let frameAtual = 0;
+let contadorFrames = 0;
+const velocidadeAnimacao = 20;
+const totalFrames = 4;
 
-    setTimeout(() =>{
-        character.classList.remove('jump');
-
-    }, 500);
+function desenharCharacter(){
+    contadorFrames++;
+    if (contadorFrames >= velocidadeAnimacao){
+        frameAtual = (frameAtual + 1) % totalFrames;
+        contadorFrames = 0;
+    }
+    
+    let larguraSprite = 64;
+    let posX = frameAtual * larguraSprite;
+    
+    ctx.drawImage(
+        characterImage,
+        posX, 0, larguraSprite, 64,
+        character.x, character.y, character.largura, character.altura
+    );
 }
 
-// Loop Verificar Colisao Personagem e obstaculo espinho
-function verificarColisao(){
-    loop = setInterval(() => {
-        const spikePosition = spike.offsetLeft;
-        const characterPosition = +window.getComputedStyle(character).bottom.replace('px', '');
+function desenharSpike(){
+    ctx.drawImage(spikeImage, spike.x, spike.y, spike.largura, spike.altura);
+}
 
-        if (spikePosition <= 39 && spikePosition > 0 && characterPosition < 50){
-            spike.style.animation = 'none';
-            spike.style.left = `${spikePosition}px`;
+let velocidadeJogo = 350;
 
-            character.style.animation = 'none';
-            character.style.bottom = `${characterPosition}px`;
+function atualizarJogo(deltaTempo){
+    velocidadeJogo += 10 * deltaTempo;
+    spike.x -= velocidadeJogo * deltaTempo;
 
-            gameOver();
+    
+    if (spike.x < -spike.largura){
+        spike.x = canvas.width + Math.random() * 150;
+    }
+
+    character.velocidadeY += character.gravidade * deltaTempo;
+    character.y += character.velocidadeY * deltaTempo;
+
+    let posicaoChao = 300; 
+    
+    if (character.y >= posicaoChao) {
+        character.y = posicaoChao;
+        character.velocidadeY = 0;
+        character.inGround = true;
+    }
+
+    if (verificarColisao(character, spike)){
+        gameOver();
+    }
+}
+
+// Loop Principal
+let ultimoTempo = 0;
+let gameLoopId;
+
+function loopPrincipal(tempoAtual){
+    if (!jogoAtivo) return;
+
+    let deltaTempo = (tempoAtual - ultimoTempo) / 1000;
+    ultimoTempo = tempoAtual;
+
+    if (deltaTempo > 0.1) deltaTempo = 0.1;
+
+    atualizarJogo(deltaTempo);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = "#1e272e";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 364);
+    ctx.lineTo(canvas.width, 364);
+    ctx.stroke();
+
+    desenharCharacter();
+    desenharSpike();
+
+    gameLoopId = requestAnimationFrame(loopPrincipal);
+
+}
+
+function verificarColisao(char, spk){
+    let margemCharacter = 12;
+    let margemSpike = 6;
+
+    return(
+        char.x + margemCharacter < (spk.x + spk.largura) - margemSpike &&
+        (char.x + char.largura) - margemCharacter > spk.x + margemSpike &&
+        char.y + margemCharacter < (spk.y + spk.altura) - margemSpike &&
+        (char.y + char.altura) - margemCharacter > spk.y + margemSpike
+    );
+}
+
+// Keyboard (tecla Space)
+let teclaPressionada = false;
+
+window.addEventListener('keydown', event => {
+    if (event.code === 'Space' && !teclaPressionada && jogoAtivo){
+        if (character.inGround){
+            character.velocidadeY = character.jumpForce;
+            character.inGround = false;
         }
-    }, 10);
-}
+        teclaPressionada = true;
+    }
+});
 
-document.addEventListener('keydown', jump);
+window.addEventListener('keyup', event => {
+    if (event.code === 'Space') {
+        teclaPressionada = false;
+    }
+});
 
+// Sistema de Score e Timer
 function iniciarContagem(){
+    if (intervalId) clearInterval(intervalId);
+
     intervalId = setInterval(function(){
-        score+=10;
-        timer+=1;
-        document.getElementById("score").innerText = score;
-        document.getElementById("timer").innerText = `${timer}s`;
+      if (jogoAtivo && !document.hidden){
+        score += 10;
+        timer += 1;
 
-       /* if (timer === 100){
-            generateBossFight();
-            Futura logica de iniciar bossfight.
-        }
+        let elementoScore = document.getElementById("score");
+        let elementoTimer = document.getElementById("timer");
 
-        if (timer > 15){
-            Futura logica de aleatoridade de inimigos.
-        }
-        */
-    }, 1000);
+        if(elementoScore) elementoScore.innerText = score;
+        if(elementoTimer) elementoTimer.innerText = timer + "s";
+
+    }
+  }, 1000);
 }
-
-/*Futura função de Gerar Bossfight
-function generateBossFight(){
-     console.log('Boss Fight!');
-}
-*/
 
 function pararContagem(){
     clearInterval(intervalId);
+    intervalId = null;
 }
 
-// Função Parar Jogo
+// Impedir que o ganho de pontos e timer fora da tela
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden){
+        pararContagem();
+    }else {
+        if(jogoAtivo){
+            ultimoTempo = performance.now();
+            iniciarContagem();
+        }
+    }
+});
+
+// função identificar record, restart e congelar tela
 function gameOver(){
+    jogoAtivo = false;
     pararContagem();
-    clearInterval(loop);
-    
-    document.getElementById("final-score").innerText = score;
-    document.getElementById("new-record").style.display = "none";
+    cancelAnimationFrame(gameLoopId);
 
-    if (score > highScore){
-        highScore = score;
-        localStorage.setItem("gameHighScore", highScore);
-        document.getElementById("record").innerText = highScore;
-        document.getElementById("new-record").style.display = "block";
+    pararContagem();
+    cancelAnimationFrame(gameLoopId);
 
+    if(document.getElementById("final-score")) {
+        document.getElementById("final-score").innerText = score;
     }
 
-    document.getElementById("game-over-screen").style.display = "block";
+    if(score > highScore){
+        highScore = score;
+        localStorage.setItem("gameHighScore", highScore);
+        if(document.getElementById("record")) document.getElementById("record").innerText = highScore;
+        if(document.getElementById("new-record")) document.getElementById("new-record").style.display = "block";
+    }
+
+    if(document.getElementById("game-over-screen")) {
+        document.getElementById("game-over-screen").style.display = "block";
+    }
 }
 
-// Reiniciar jogo
-function reiniciarJogo() {
-    document.getElementById("game-over-screen").style.display = "none";
+// Resetar valor inicio
+function reiniciarJogo(){
+    if(document.getElementById("game-over-screen")) document.getElementById("game-over-screen").style.display = "none";
+    if(document.getElementById("new-record")) document.getElementById("new-record").style.display = "none";
+    
     timer = 0;
     score = 0;
-    document.getElementById("score").innerText = score;
-    document.getElementById("timer").innerText = `${timer}s`;
-    spike.style.left = '';
-    character.style.bottom = '';
+    velocidadeJogo = 350;
 
-    spike.style.animation = 'spike-animation 1s infinite linear';
-    character.style.animation = '';
+    if(document.getElementById("score")) document.getElementById("score").innerText = score;
+    if(document.getElementById("timer")) document.getElementById("timer").innerText = "0s";
+
+    spike.x = 800;
+    character.velocidadeY = 0;
+
+    jogoAtivo = true;
+    ultimoTempo = performance.now();
 
     iniciarContagem();
-    verificarColisao();
-
+    gameLoopId = requestAnimationFrame(loopPrincipal); 
 }
 
 iniciarContagem();
-verificarColisao();
+gameLoopId = requestAnimationFrame(loopPrincipal);
