@@ -4,103 +4,90 @@
     box-sizing: border-box;
 }
 
-.game-board{
-    width: 100%;
-    height: 500px;
-    border: 1px solid #333;
-    margin: 0 auto;
+body {
+    font-family: 'Press Start 2P', cursive;
+    color: white;
+    background-color: #130120; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden; 
+}
+
+.game-container {
     position: relative;
-    overflow: hidden;
+    width: 95vw;       
+    height: 50vw;      
+    max-width: 1920px;
+    max-height: 1080px;   
+    aspect-ratio: 2 / 1; 
+    margin: 0 auto;
 }
 
-.spike{
-    position: absolute;
-    bottom: 0;
-    width: 32px;
-    animation: spike-animation 1s infinite linear;
-}
-
-.character{
-    width: 64px;
-    height: 64px;
-    position: absolute;
-    bottom: 0;
+#window-game {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: fill; 
+    background-color: #f7f7f7;
+    border: 2px solid #333;
+    border-radius: 6px;
+    margin-bottom: 0 auto;
 
     image-rendering: pixelated;
-    background-image: url('../sprites/Walk-sheet.png');
-    background-repeat: no-repeat;
-
-    animation: andar 0.6s steps(4) infinite;
-}
-
-.jump {
-    animation: jump 500ms ease-out;
-}
-
-@keyframes andar{
-    from {background-position: 0px 0px; }
-    to { background-position: -256px 0px; }
-}
-
-@keyframes jump{
-    0% {
-        bottom: 0;
-    }
-
-    50% {
-        bottom: 180px;
-    }
-
-    60% {
-        bottom: 180px;
-    }
-
-    180% {
-        bottom: 0;
-    }
-}
-
-@keyframes spike-animation {
-    from{
-        right: 0;
-    }
-
-    to {
-        right: 100%;
-    }
+    image-rendering: crisp-edges;
 }
 
 .hud-container {
+    position: absolute;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
-    background-color: black;
-    padding: 10px;
-    border-radius: 8px;
-    width: 80%;
-    margin: 10px auto;
-    font-family: 'Press Start 2P', cursive;
-    color: white;
-    font-weight: bold;
-
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95vh; 
+    z-index: 5;
 }
 
 .hud-item {
-    font-size: 18px;
+    font-size: 10px; 
+    color: #130120;
+    background-color: rgba(255, 255, 255, 0.9); 
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 3px solid #130120;
+    box-shadow: 4px 4px 0px #000; 
 }
 
 #game-over-screen {
-    font-family: 'Press Start 2P', cursive;
     color: white;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: black;
-    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.95);
+    padding: 30px;
     border-radius: 10px;
     text-align: center;
+    width: 85%;
+    max-width: 380px;
+    border: 4px solid #ff4757;
     z-index: 10;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+}
+
+#game-over-screen h2 {
+    color: #ff4757;
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+#game-over-screen p {
+    font-size: 12px;
+    margin-bottom: 15px;
 }
 
 #restart-button {
@@ -108,13 +95,21 @@
     background-color: #ff4757;
     color: white;
     border: none;
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 12px 24px;
+    font-size: 14px;
     cursor: pointer;
     border-radius: 5px;
-    margin-top: 10px;
+    margin-top: 15px;
+    transition: 0.2s;
+    box-shadow: 0 4px 0 #b33939;
 }
 
 #restart-button:hover {
     background-color: #ff6b81;
+    transform: translateY(-2px);
+}
+
+#restart-button:active {
+    transform: translateY(2px);
+    box-shadow: none;
 }
